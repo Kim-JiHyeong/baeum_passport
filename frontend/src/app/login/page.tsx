@@ -39,7 +39,7 @@ export default function LoginPage() {
             value={id}
             onChange={(event) => setId(event.target.value)}
             className="mt-2 h-12 w-full rounded-md border border-passport-blue/20 bg-white px-3 outline-none focus:border-passport-blue"
-            placeholder="20030101홍길동"
+            placeholder="학년 + 반 + 번호 + 이름"
           />
         </label>
         <label className="mt-4 block text-sm font-bold text-passport-ink">
@@ -49,7 +49,7 @@ export default function LoginPage() {
             onChange={(event) => setPassword(event.target.value)}
             type="password"
             className="mt-2 h-12 w-full rounded-md border border-passport-blue/20 bg-white px-3 outline-none focus:border-passport-blue"
-            placeholder="생년월일 8자리"
+            placeholder="학년 + 반 + 번호"
           />
         </label>
         <button className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-passport-blue font-bold text-white transition hover:bg-passport-navy">

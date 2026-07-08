@@ -33,10 +33,6 @@ public class SignupRequestDto {
     @JsonProperty("first_name")
     private String firstName;
 
-    @NotNull(message = "생년월일을 입력해주세요.")
-    @JsonProperty("birth_date")
-    private String birthDate;
-
     @NotNull(message = "성별을 입력해주세요.")
     private String gender;
 

@@ -14,7 +14,6 @@ export function SignupForm() {
     studentNumber: "",
     lastName: "",
     firstName: "",
-    birthDate: "",
     gender: "선택 안 함",
     avatar: "",
   });
@@ -69,15 +68,6 @@ export function SignupForm() {
           <input
             value={form.firstName}
             onChange={(event) => updateField("firstName", event.target.value)}
-            className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 bg-passport-paper px-3 outline-none focus:border-passport-blue"
-          />
-        </label>
-        <label className="block text-sm font-bold text-passport-ink">
-          생년월일
-          <input
-            type="date"
-            value={form.birthDate}
-            onChange={(event) => updateField("birthDate", event.target.value)}
             className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 bg-passport-paper px-3 outline-none focus:border-passport-blue"
           />
         </label>

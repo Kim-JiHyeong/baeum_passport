@@ -8,7 +8,6 @@ export type AuthUser = {
   grade?: string;
   classNumber?: string;
   studentNumber?: string;
-  birthDate?: string;
   gender?: string;
   avatar?: string;
   createdAt?: string;
@@ -29,7 +28,6 @@ type UserInfoResponse = {
   grade?: number;
   class_num?: number;
   student_num?: number;
-  birth_date?: string;
   gender?: string;
   avatar?: string;
   created_at?: string;
@@ -41,7 +39,6 @@ export type SignupPayload = {
   studentNumber: string;
   lastName: string;
   firstName: string;
-  birthDate: string;
   gender: string;
   avatar?: string;
 };
@@ -56,7 +53,6 @@ function toUser(response: AuthResponse | UserInfoResponse): AuthUser {
     grade: profile?.grade == null ? undefined : String(profile.grade),
     classNumber: profile?.class_num == null ? undefined : String(profile.class_num),
     studentNumber: profile?.student_num == null ? undefined : String(profile.student_num),
-    birthDate: profile?.birth_date,
     gender: profile?.gender,
     avatar: response.avatar,
     createdAt: profile?.created_at,
@@ -76,7 +72,6 @@ export async function signup(payload: SignupPayload) {
     student_num: Number(payload.studentNumber),
     last_name: payload.lastName,
     first_name: payload.firstName,
-    birth_date: payload.birthDate,
     gender: payload.gender,
     avatar: payload.avatar || null,
   });

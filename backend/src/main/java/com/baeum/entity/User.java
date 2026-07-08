@@ -36,9 +36,6 @@ public class User {
 
     private String avatar;
 
-    @Column(name = "birth_date")
-    private String birthDate;
-
     @Column(name = "created_at")
     private String createdAt;
 
@@ -50,8 +47,7 @@ public class User {
             Integer classNum,
             Integer studentNum,
             String gender,
-            String avatar,
-            String birthDate) {
+            String avatar) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -60,7 +56,6 @@ public class User {
         this.studentNum = studentNum;
         this.gender = gender;
         this.avatar = avatar;
-        this.birthDate = birthDate;
         this.createdAt = Instant.now().toString();
     }
 }

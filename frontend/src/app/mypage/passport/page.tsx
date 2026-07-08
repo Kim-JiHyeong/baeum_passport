@@ -105,7 +105,7 @@ export default function MyPassportPage() {
                   <div className="grid content-start gap-3">
                     <PassportInfo label="NAME" value={user.name} />
                     <PassportInfo label="PASSPORT NO" value={user.username} />
-                    <PassportInfo label="DATE OF BIRTH" value={user.birthDate ?? "-"} />
+                    <PassportInfo label="STUDENT CODE" value={studentCode(user)} />
                     <PassportInfo label="SEX" value={sexCode(user.gender)} />
                     <div className="grid grid-cols-3 gap-3">
                       <PassportInfo label="GRADE" value={user.grade ?? "-"} compact />
@@ -223,6 +223,11 @@ function sexCode(gender?: string) {
   if (gender === "남") return "M";
   if (gender === "여") return "F";
   return "-";
+}
+
+function studentCode(user: AuthUser) {
+  if (!user.grade || !user.classNumber || !user.studentNumber) return "-";
+  return `${user.grade}${user.classNumber}${user.studentNumber}`;
 }
 
 function formatDate(value?: string) {

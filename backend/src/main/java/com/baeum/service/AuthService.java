@@ -34,14 +34,15 @@ public class AuthService {
 
     @Transactional
     public AuthResponseDto signup(SignupRequestDto request) {
-        String username = request.getBirthDate().replace("-", "") + request.getLastName() + request.getFirstName();
+        String studentCode = createStudentCode(request.getGrade(), request.getClassNum(), request.getStudentNum());
+        String name = request.getLastName() + request.getFirstName();
+        String username = studentCode + name;
 
         if (userRepository.existsByUsername(username)) {
             throw new DuplicateResourceException("이미 존재하는 계정입니다.");
         }
 
-        String name = request.getLastName() + request.getFirstName();
-        String encodedPassword = passwordEncoder.encode(request.getBirthDate().replace("-", ""));
+        String encodedPassword = passwordEncoder.encode(studentCode);
         User user = new User(
                 username,
                 encodedPassword,
@@ -50,8 +51,7 @@ public class AuthService {
                 request.getClassNum(),
                 request.getStudentNum(),
                 request.getGender(),
-                request.getAvatar(),
-                request.getBirthDate());
+                request.getAvatar());
         User savedUser = userRepository.save(user);
         String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getUsername());
 
@@ -88,7 +88,10 @@ public class AuthService {
                 user.getStudentNum(),
                 user.getGender(),
                 user.getAvatar(),
-                user.getBirthDate(),
                 user.getCreatedAt());
+    }
+
+    private String createStudentCode(Integer grade, Integer classNum, Integer studentNum) {
+        return String.valueOf(grade) + classNum + studentNum;
     }
 }

@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS users (
   student_num INTEGER,
   gender TEXT,
   avatar TEXT,
-  birth_date TEXT,
   created_at TEXT DEFAULT (CURRENT_TIMESTAMP::TEXT)
 );
 

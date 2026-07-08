@@ -38,7 +38,7 @@ export function LoginForm() {
           value={id}
           onChange={(event) => setId(event.target.value)}
           className="mt-2 h-12 w-full rounded-md border border-passport-blue/20 bg-passport-paper px-3 outline-none focus:border-passport-blue"
-          placeholder="20030101홍길동"
+          placeholder="학년 + 반 + 번호 + 이름"
         />
       </label>
 
@@ -49,7 +49,7 @@ export function LoginForm() {
           onChange={(event) => setPassword(event.target.value)}
           type="password"
           className="mt-2 h-12 w-full rounded-md border border-passport-blue/20 bg-passport-paper px-3 outline-none focus:border-passport-blue"
-          placeholder="생년월일 8자리"
+          placeholder="학년 + 반 + 번호"
         />
       </label>
 

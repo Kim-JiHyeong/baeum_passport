@@ -15,7 +15,6 @@ export default function SignupPage() {
     studentNumber: "",
     lastName: "",
     firstName: "",
-    birthDate: "",
     gender: "선택 안 함",
     avatar: "",
   });
@@ -64,10 +63,6 @@ export default function SignupPage() {
           <label className="block text-sm font-bold">
             이름
             <input value={form.firstName} onChange={(event) => updateField("firstName", event.target.value)} className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 px-3 outline-none focus:border-passport-blue" />
-          </label>
-          <label className="block text-sm font-bold">
-            생년월일
-            <input type="date" value={form.birthDate} onChange={(event) => updateField("birthDate", event.target.value)} className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 px-3 outline-none focus:border-passport-blue" />
           </label>
           <label className="block text-sm font-bold">
             성별
