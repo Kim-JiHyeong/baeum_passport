@@ -39,7 +39,7 @@ export default function LoginPage() {
             value={id}
             onChange={(event) => setId(event.target.value)}
             className="mt-2 h-12 w-full rounded-md border border-passport-blue/20 bg-white px-3 outline-none focus:border-passport-blue"
-            placeholder="학년 + 반 + 번호 + 이름"
+            placeholder="학교 이름 + 학년 + 반 + 번호 + 이름"
           />
         </label>
         <label className="mt-4 block text-sm font-bold text-passport-ink">

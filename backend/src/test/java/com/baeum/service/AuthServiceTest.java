@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -21,8 +22,6 @@ import com.baeum.dto.SignupRequestDto;
 import com.baeum.entity.User;
 import com.baeum.jwt.JwtUtil;
 import com.baeum.repository.UserRepository;
-
-import org.mockito.Mockito;
 
 class AuthServiceTest {
 
@@ -42,18 +41,19 @@ class AuthServiceTest {
     }
 
     @Test
-    void signupCreatesUsernameAndPasswordFromStudentInfo() {
+    void signupCreatesUsernameAndPasswordFromSchoolAndStudentInfo() {
         SignupRequestDto request = new SignupRequestDto(
-                3,
+                "Dongsan",
+                6,
+                2,
                 1,
-                1,
-                "홍",
-                "길동",
-                "남",
+                "Lim",
+                "Ducktae",
+                "male",
                 "male1.png");
         AtomicReference<User> savedUser = new AtomicReference<>();
 
-        when(userRepository.existsByUsername("311홍길동")).thenReturn(false);
+        when(userRepository.existsByUsername("Dongsan6201LimDucktae")).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             ReflectionTestUtils.setField(user, "id", 1L);
@@ -64,33 +64,59 @@ class AuthServiceTest {
         AuthResponseDto response = authService.signup(request);
         User user = savedUser.get();
 
-        assertEquals("311홍길동", user.getUsername());
-        assertFalse("311".equals(user.getPassword()));
-        assertTrue(passwordEncoder.matches("311", user.getPassword()));
-        assertEquals("311홍길동", response.getUsername());
+        assertEquals("Dongsan6201LimDucktae", user.getUsername());
+        assertEquals("Dongsan", user.getSchoolName());
+        assertFalse("6201".equals(user.getPassword()));
+        assertTrue(passwordEncoder.matches("6201", user.getPassword()));
+        assertEquals("Dongsan6201LimDucktae", response.getUsername());
         assertTrue(jwtUtil.validateToken(response.getToken()));
-        assertEquals("311홍길동", jwtUtil.getUsernameFromToken(response.getToken()));
+        assertEquals("Dongsan6201LimDucktae", jwtUtil.getUsernameFromToken(response.getToken()));
     }
 
     @Test
     void loginAcceptsGeneratedUsernameAndPassword() {
         User user = new User(
-                "311홍길동",
-                passwordEncoder.encode("311"),
-                "홍길동",
-                3,
+                "Dongsan6201LimDucktae",
+                passwordEncoder.encode("6201"),
+                "LimDucktae",
+                "Dongsan",
+                6,
+                2,
                 1,
-                1,
-                "남",
+                "male",
                 "male1.png");
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        when(userRepository.findByUsername("311홍길동")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("Dongsan6201LimDucktae")).thenReturn(Optional.of(user));
 
-        AuthResponseDto response = authService.login(new LoginRequestDto("311홍길동", "311"));
+        AuthResponseDto response = authService.login(new LoginRequestDto("Dongsan6201LimDucktae", "6201"));
 
-        assertEquals("311홍길동", response.getUsername());
+        assertEquals("Dongsan6201LimDucktae", response.getUsername());
         assertTrue(jwtUtil.validateToken(response.getToken()));
         assertEquals(1L, jwtUtil.getUserIdFromToken(response.getToken()));
+    }
+
+    @Test
+    void loginAcceptsUnpaddedStudentCodeForExistingPaddedAccount() {
+        User user = new User(
+                "Dongsan6201LimDucktae",
+                passwordEncoder.encode("6201"),
+                "LimDucktae",
+                "Dongsan",
+                6,
+                2,
+                1,
+                "male",
+                "male1.png");
+        ReflectionTestUtils.setField(user, "id", 2L);
+
+        when(userRepository.findByUsername("Dongsan621LimDucktae")).thenReturn(Optional.empty());
+        when(userRepository.findByUsername("Dongsan6201LimDucktae")).thenReturn(Optional.of(user));
+
+        AuthResponseDto response = authService.login(new LoginRequestDto("Dongsan621LimDucktae", "621"));
+
+        assertEquals("Dongsan6201LimDucktae", response.getUsername());
+        assertTrue(jwtUtil.validateToken(response.getToken()));
+        assertEquals(2L, jwtUtil.getUserIdFromToken(response.getToken()));
     }
 }

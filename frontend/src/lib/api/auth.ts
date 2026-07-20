@@ -5,6 +5,7 @@ export type AuthUser = {
   id: string;
   username: string;
   name: string;
+  schoolName?: string;
   grade?: string;
   classNumber?: string;
   studentNumber?: string;
@@ -25,6 +26,7 @@ type UserInfoResponse = {
   id: number;
   username: string;
   name: string;
+  school_name?: string;
   grade?: number;
   class_num?: number;
   student_num?: number;
@@ -34,6 +36,7 @@ type UserInfoResponse = {
 };
 
 export type SignupPayload = {
+  schoolName: string;
   grade: string;
   classNumber: string;
   studentNumber: string;
@@ -50,6 +53,7 @@ function toUser(response: AuthResponse | UserInfoResponse): AuthUser {
     id: String("user_id" in response ? response.user_id : response.id),
     username: response.username,
     name: response.name,
+    schoolName: profile?.school_name,
     grade: profile?.grade == null ? undefined : String(profile.grade),
     classNumber: profile?.class_num == null ? undefined : String(profile.class_num),
     studentNumber: profile?.student_num == null ? undefined : String(profile.student_num),
@@ -67,6 +71,7 @@ export async function login(username: string, password: string) {
 
 export async function signup(payload: SignupPayload) {
   const { data } = await apiClient.post<AuthResponse>("/api/auth/signup", {
+    school_name: payload.schoolName,
     grade: Number(payload.grade),
     class_num: Number(payload.classNumber),
     student_num: Number(payload.studentNumber),

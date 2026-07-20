@@ -10,6 +10,7 @@ import { signup } from "@/lib/api/auth";
 export default function SignupPage() {
   const router = useRouter();
   const [form, setForm] = useState({
+    schoolName: "",
     grade: "",
     classNumber: "",
     studentNumber: "",
@@ -26,7 +27,7 @@ export default function SignupPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     await signup(form);
-    router.push("/login");
+    router.push("/worldmap");
   }
 
   return (
@@ -39,6 +40,15 @@ export default function SignupPage() {
         <div className="mt-7">
           <AvatarSelector gender={form.gender} value={form.avatar} onChange={(value) => updateField("avatar", value)} />
         </div>
+        <label className="mt-7 block text-sm font-bold">
+          학교 이름
+          <input
+            value={form.schoolName}
+            onChange={(event) => updateField("schoolName", event.target.value)}
+            className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 px-3 outline-none focus:border-passport-blue"
+            placeholder="예: 경기동산초"
+          />
+        </label>
         <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[
             ["grade", "학년"],

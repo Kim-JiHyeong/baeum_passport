@@ -9,6 +9,7 @@ import { AvatarSelector } from "@/components/passport/AvatarSelector";
 export function SignupForm() {
   const router = useRouter();
   const [form, setForm] = useState({
+    schoolName: "",
     grade: "",
     classNumber: "",
     studentNumber: "",
@@ -36,6 +37,16 @@ export function SignupForm() {
       </div>
 
       <AvatarSelector gender={form.gender} value={form.avatar} onChange={(value) => updateField("avatar", value)} />
+
+      <label className="block text-sm font-bold text-passport-ink">
+        학교 이름
+        <input
+          value={form.schoolName}
+          onChange={(event) => updateField("schoolName", event.target.value)}
+          className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 bg-passport-paper px-3 outline-none focus:border-passport-blue"
+          placeholder="예: 경기동산초"
+        />
+      </label>
 
       <div className="grid grid-cols-3 gap-3">
         {[

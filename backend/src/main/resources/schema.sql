@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
   name TEXT NOT NULL,
+  school_name TEXT,
   grade INTEGER,
   class_num INTEGER,
   student_num INTEGER,
@@ -13,6 +14,9 @@ CREATE TABLE IF NOT EXISTS users (
 
 ALTER TABLE users
 ADD COLUMN IF NOT EXISTS avatar TEXT;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS school_name TEXT;
 
 CREATE TABLE IF NOT EXISTS continents (
   id BIGSERIAL PRIMARY KEY,
