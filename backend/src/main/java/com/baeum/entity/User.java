@@ -24,6 +24,10 @@ public class User {
     private String username;
     private String password;
     private String name;
+
+    @Column(name = "school_name")
+    private String schoolName;
+
     private Integer grade;
 
     @Column(name = "class_num")
@@ -43,6 +47,7 @@ public class User {
             String username,
             String password,
             String name,
+            String schoolName,
             Integer grade,
             Integer classNum,
             Integer studentNum,
@@ -51,11 +56,24 @@ public class User {
         this.username = username;
         this.password = password;
         this.name = name;
+        this.schoolName = schoolName;
         this.grade = grade;
         this.classNum = classNum;
         this.studentNum = studentNum;
         this.gender = gender;
         this.avatar = avatar;
         this.createdAt = Instant.now().toString();
+    }
+
+    public User(
+            String username,
+            String password,
+            String name,
+            Integer grade,
+            Integer classNum,
+            Integer studentNum,
+            String gender,
+            String avatar) {
+        this(username, password, name, null, grade, classNum, studentNum, gender, avatar);
     }
 }

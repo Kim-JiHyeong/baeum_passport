@@ -14,6 +14,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SignupRequestDto {
 
+    @NotNull(message = "학교 이름을 입력해주세요.")
+    @JsonProperty("school_name")
+    private String schoolName;
+
     @NotNull(message = "학년을 입력해주세요.")
     private Integer grade;
 

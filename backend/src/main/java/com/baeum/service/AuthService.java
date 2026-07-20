@@ -1,5 +1,9 @@
 package com.baeum.service;
 
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +39,9 @@ public class AuthService {
     @Transactional
     public AuthResponseDto signup(SignupRequestDto request) {
         String studentCode = createStudentCode(request.getGrade(), request.getClassNum(), request.getStudentNum());
-        String name = request.getLastName() + request.getFirstName();
-        String username = studentCode + name;
+        String schoolName = normalizeInput(request.getSchoolName());
+        String name = normalizeInput(request.getLastName() + request.getFirstName());
+        String username = schoolName + studentCode + name;
 
         if (userRepository.existsByUsername(username)) {
             throw new DuplicateResourceException("이미 존재하는 계정입니다.");
@@ -47,6 +52,7 @@ public class AuthService {
                 username,
                 encodedPassword,
                 name,
+                schoolName,
                 request.getGrade(),
                 request.getClassNum(),
                 request.getStudentNum(),
@@ -64,10 +70,13 @@ public class AuthService {
     }
 
     public AuthResponseDto login(LoginRequestDto request) {
-        User user = userRepository.findByUsername(request.getUsername())
+        String username = normalizeInput(request.getUsername());
+        String password = normalizeInput(request.getPassword());
+
+        User user = findUserByLoginUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 계정입니다."));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (passwordCandidates(password).stream().noneMatch(candidate -> passwordEncoder.matches(candidate, user.getPassword()))) {
             throw new UnauthorizedException("비밀번호가 올바르지 않습니다.");
         }
 
@@ -83,6 +92,7 @@ public class AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
+                user.getSchoolName(),
                 user.getGrade(),
                 user.getClassNum(),
                 user.getStudentNum(),
@@ -92,6 +102,84 @@ public class AuthService {
     }
 
     private String createStudentCode(Integer grade, Integer classNum, Integer studentNum) {
-        return String.valueOf(grade) + classNum + studentNum;
+        return String.valueOf(grade) + classNum + String.format("%02d", studentNum);
+    }
+
+    private Optional<User> findUserByLoginUsername(String username) {
+        for (String candidate : usernameCandidates(username)) {
+            Optional<User> user = userRepository.findByUsername(candidate);
+            if (user.isPresent()) {
+                return user;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Set<String> usernameCandidates(String username) {
+        Set<String> candidates = new LinkedHashSet<>();
+        candidates.add(username);
+
+        int codeStartIndex = -1;
+        for (int i = 0; i < username.length(); i++) {
+            if (Character.isDigit(username.charAt(i))) {
+                codeStartIndex = i;
+                break;
+            }
+        }
+
+        if (codeStartIndex >= 0) {
+            int nameStartIndex = codeStartIndex;
+            while (nameStartIndex < username.length() && Character.isDigit(username.charAt(nameStartIndex))) {
+                nameStartIndex++;
+            }
+
+            String schoolName = username.substring(0, codeStartIndex);
+            String studentCode = username.substring(codeStartIndex, nameStartIndex);
+            String name = username.substring(nameStartIndex);
+            for (String candidateCode : studentCodeCandidates(studentCode)) {
+                candidates.add(schoolName + candidateCode + name);
+            }
+        }
+
+        return candidates;
+    }
+
+    private Set<String> passwordCandidates(String password) {
+        Set<String> candidates = new LinkedHashSet<>();
+        candidates.add(password);
+        candidates.addAll(studentCodeCandidates(password));
+        return candidates;
+    }
+
+    private Set<String> studentCodeCandidates(String studentCode) {
+        Set<String> candidates = new LinkedHashSet<>();
+        candidates.add(studentCode);
+
+        if (!studentCode.chars().allMatch(Character::isDigit) || studentCode.length() < 3) {
+            return candidates;
+        }
+
+        String grade = studentCode.substring(0, 1);
+        String rest = studentCode.substring(1);
+        for (int classLength = 1; classLength <= 2; classLength++) {
+            int studentLength = rest.length() - classLength;
+            if (studentLength < 1 || studentLength > 2) {
+                continue;
+            }
+
+            String classPart = rest.substring(0, classLength);
+            String studentPart = rest.substring(classLength);
+            int classNum = Integer.parseInt(classPart);
+            int studentNum = Integer.parseInt(studentPart);
+            candidates.add(grade + classNum + studentNum);
+            candidates.add(grade + String.valueOf(classNum) + String.format("%02d", studentNum));
+            candidates.add(grade + String.format("%02d", classNum) + String.format("%02d", studentNum));
+        }
+
+        return candidates;
+    }
+
+    private String normalizeInput(String value) {
+        return value == null ? "" : value.trim().replaceAll("\\s+", "");
     }
 }

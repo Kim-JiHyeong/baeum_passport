@@ -12,6 +12,10 @@ public class UserInfoDto {
     private Long id;
     private String username;
     private String name;
+
+    @JsonProperty("school_name")
+    private String schoolName;
+
     private Integer grade;
 
     @JsonProperty("class_num")
