@@ -1,6 +1,7 @@
 package com.baeum.service;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +48,13 @@ public class WorkbookService {
         return toDto(workbook);
     }
 
+    public List<Long> getCompletedCountryIds() {
+        Long userId = authUtil.getCurrentUserId();
+        return workbookRepository.findByUserIdAndCompleted(userId, 1).stream()
+                .map(Workbook::getCountryId)
+                .toList();
+    }
+
     @Transactional
     public WorkbookDto createWorkbook(Long countryId) {
         Long userId = authUtil.getCurrentUserId();
@@ -54,11 +62,11 @@ public class WorkbookService {
                 .orElseThrow(() -> new ResourceNotFoundException("해당 국가를 찾을 수 없습니다."));
 
         if (!Integer.valueOf(1).equals(country.getIsFeatured())) {
-            throw new ForbiddenException("대표 국가만 학습지를 작성할 수 있습니다.");
+            throw new ForbiddenException("대표 국가만 여행한 국가를 작성할 수 있습니다.");
         }
 
         if (workbookRepository.findByUserIdAndCountryId(userId, countryId).isPresent()) {
-            throw new DuplicateResourceException("이미 학습지가 존재합니다.");
+            throw new DuplicateResourceException("이미 여행한 국가가 존재합니다.");
         }
 
         Workbook workbook = new Workbook();
@@ -168,7 +176,7 @@ public class WorkbookService {
 
     private Workbook findByUserIdAndCountryId(Long userId, Long countryId) {
         return workbookRepository.findByUserIdAndCountryId(userId, countryId)
-                .orElseThrow(() -> new ResourceNotFoundException("학습지를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("여행한 국가를 찾을 수 없습니다."));
     }
 
     private WorkbookDto toDto(Workbook workbook) {

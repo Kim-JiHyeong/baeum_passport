@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { BookOpen, Globe2, ImageIcon, MapPinned, Plus, Stamp } from "lucide-react";
 import Link from "next/link";
@@ -62,7 +62,7 @@ export default function TravelInfoIndexPage() {
 
   return (
     <main className="passport-entry paper-surface flex h-screen items-center justify-center overflow-hidden p-4 sm:p-6">
-      <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label="여행정보">
+      <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label="조사한 국가">
         <PassportBookmarks />
         <LogoutBookmark />
 
@@ -70,9 +70,9 @@ export default function TravelInfoIndexPage() {
           <div className="passport-open-content justify-between gap-6">
             <header>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">Travel Info</p>
-              <h1 className="mt-3 text-3xl font-black text-passport-navy">여행정보</h1>
+              <h1 className="mt-3 text-3xl font-black text-passport-navy">조사한 국가</h1>
               <p className="mt-4 text-base font-bold leading-7 text-passport-ink/72">
-                여행정보는 내가 가보고 싶은 나라를 직접 추가하고, 여행 전에 알고 싶은 내용을 정리하는 준비 페이지입니다.
+                조사한 국가는 내가 가보고 싶은 나라를 직접 추가하고, 여행 전에 알고 싶은 내용을 정리하는 준비 페이지입니다.
               </p>
             </header>
 
@@ -146,7 +146,7 @@ function AddCountryForm({
       <header>
         <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">Add Destination</p>
         <h2 className="mt-3 text-3xl font-black text-passport-navy">새 여행지 추가</h2>
-        <p className="mt-4 text-base font-bold leading-7 text-passport-ink/72">여행정보를 만들 나라 이름을 입력하세요.</p>
+        <p className="mt-4 text-base font-bold leading-7 text-passport-ink/72">조사한 국가를 만들 나라 이름을 입력하세요.</p>
       </header>
 
       <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col justify-center gap-5">
@@ -181,7 +181,7 @@ function TravelInfoList({ infos, onAdd }: { infos: TravelCountryInfo[]; onAdd: (
           <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">My Destinations</p>
           <h2 className="mt-2 text-3xl font-black text-passport-navy">여행 국가</h2>
           <p className="mt-3 text-base font-bold leading-7 text-passport-ink/70">
-            {infos.length > 0 ? "국가 카드를 선택해 여행 준비 내용을 이어서 작성하세요." : "먼저 여행정보를 만들 나라를 추가하세요."}
+            {infos.length > 0 ? "국가 카드를 선택해 여행 준비 내용을 이어서 작성하세요." : "먼저 조사한 국가를 만들 나라를 추가하세요."}
           </p>
         </div>
         <MapPinned className="text-passport-blue/35" size={34} />
@@ -227,8 +227,8 @@ function PassportBookmarks() {
   const items = [
     { label: "세계지도", href: "/worldmap", active: false, icon: Globe2 },
     { label: "사증", href: "/stamp", active: false, icon: Stamp },
-    { label: "학습지", href: "/workbook", active: false, icon: BookOpen },
-    { label: "여행정보", href: "/travel-info", active: true, icon: MapPinned },
+    { label: "여행한 국가", href: "/workbook", active: false, icon: BookOpen },
+    { label: "조사한 국가", href: "/travel-info", active: true, icon: MapPinned },
     { label: "여권 보기", href: "/mypage/passport", active: false, icon: BookOpen },
   ];
 

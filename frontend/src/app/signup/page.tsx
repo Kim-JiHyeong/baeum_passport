@@ -40,7 +40,15 @@ export default function SignupPage() {
         <div className="mt-7">
           <AvatarSelector gender={form.gender} value={form.avatar} onChange={(value) => updateField("avatar", value)} />
         </div>
-        <label className="mt-7 block text-sm font-bold">
+        <label className="mt-4 block text-sm font-bold">
+          성별
+          <select value={form.gender} onChange={(event) => updateField("gender", event.target.value)} className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 px-3 outline-none focus:border-passport-blue">
+            <option>선택 안 함</option>
+            <option>남</option>
+            <option>여</option>
+          </select>
+        </label>
+        <label className="mt-4 block text-sm font-bold">
           학교 이름
           <input
             value={form.schoolName}
@@ -73,14 +81,6 @@ export default function SignupPage() {
           <label className="block text-sm font-bold">
             이름
             <input value={form.firstName} onChange={(event) => updateField("firstName", event.target.value)} className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 px-3 outline-none focus:border-passport-blue" />
-          </label>
-          <label className="block text-sm font-bold">
-            성별
-            <select value={form.gender} onChange={(event) => updateField("gender", event.target.value)} className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 px-3 outline-none focus:border-passport-blue">
-              <option>선택 안 함</option>
-              <option>남</option>
-              <option>여</option>
-            </select>
           </label>
         </div>
         <button className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-passport-blue font-bold text-white transition hover:bg-passport-navy">

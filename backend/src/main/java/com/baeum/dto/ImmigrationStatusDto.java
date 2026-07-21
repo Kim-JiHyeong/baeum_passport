@@ -24,6 +24,15 @@ public class ImmigrationStatusDto {
     @JsonProperty("immigration_completed_at")
     private String immigrationCompletedAt;
 
+    @JsonProperty("immigration_retry_available_at")
+    private String immigrationRetryAvailableAt;
+
+    @JsonProperty("retry_blocked")
+    private boolean retryBlocked;
+
+    @JsonProperty("retry_remaining_seconds")
+    private long retryRemainingSeconds;
+
     @JsonProperty("already_passed")
     private boolean alreadyPassed;
 

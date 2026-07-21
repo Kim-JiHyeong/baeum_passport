@@ -41,4 +41,7 @@ public class UserCountry {
 
     @Column(name = "immigration_completed_at")
     private String immigrationCompletedAt;
+
+    @Column(name = "immigration_retry_available_at")
+    private String immigrationRetryAvailableAt;
 }

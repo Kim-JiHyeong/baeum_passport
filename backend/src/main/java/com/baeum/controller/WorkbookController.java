@@ -1,5 +1,7 @@
 package com.baeum.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,11 @@ public class WorkbookController {
 
     public WorkbookController(WorkbookService workbookService) {
         this.workbookService = workbookService;
+    }
+
+    @GetMapping("/completed-country-ids")
+    public ResponseEntity<List<Long>> getCompletedCountryIds() {
+        return ResponseEntity.ok(workbookService.getCompletedCountryIds());
     }
 
     @GetMapping("/{countryId}")

@@ -88,6 +88,7 @@ public class UserCountryService {
         userCountry.setImmigrationScore(3);
         userCountry.setImmigrationPassedAt(completedAt);
         userCountry.setImmigrationCompletedAt(completedAt);
+        userCountry.setImmigrationRetryAvailableAt(null);
 
         return toResponseDto(userCountryRepository.save(userCountry), false, "입국심사를 통과했습니다.");
     }

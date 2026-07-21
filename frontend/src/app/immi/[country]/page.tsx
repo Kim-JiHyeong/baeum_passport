@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { addUserCountry, getUserCountries, passImmigration } from "@/lib/api/immigration";
+import { addUserCountry, getImmigrationStatus, getUserCountries, passImmigration, submitImmigration } from "@/lib/api/immigration";
 import { getCountryIdByName } from "@/lib/api/country";
 import { countryPath, findCountry, isWorkbookEligibleCountry, workbookCountries, type RepresentativeCountry } from "@/lib/countries";
 
@@ -24,9 +24,11 @@ export default function ImmigrationPage({ params }: { params: { country: string 
   const [questionIndex, setQuestionIndex] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [showFailureModal, setShowFailureModal] = useState(false);
+  const [showRetryBlockedModal, setShowRetryBlockedModal] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [immigrationError, setImmigrationError] = useState("");
+  const [countryId, setCountryId] = useState<number | null>(null);
+  const [retryRemainingSeconds, setRetryRemainingSeconds] = useState(0);
 
   const questions = useMemo(() => (country ? buildImmigrationQuestions(country) : []), [country]);
   const currentQuestion = questions[questionIndex];
@@ -39,11 +41,61 @@ export default function ImmigrationPage({ params }: { params: { country: string 
     }
   }, [country, router]);
 
+  useEffect(() => {
+    if (!country || !isWorkbookEligibleCountry(country)) return;
+
+    let isMounted = true;
+
+    getCountryIdByName(country.name, true)
+      .then(async (nextCountryId) => {
+        if (!isMounted) return;
+        setCountryId(nextCountryId);
+
+        if (!nextCountryId) return;
+
+        const status = await getImmigrationStatus(nextCountryId);
+        if (!isMounted) return;
+
+        if (status.retry_blocked && status.retry_remaining_seconds > 0) {
+          setRetryRemainingSeconds(status.retry_remaining_seconds);
+          setShowRetryBlockedModal(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load immigration status.", { countryName, error });
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [country, countryName]);
+
+  useEffect(() => {
+    if (!showRetryBlockedModal || retryRemainingSeconds <= 0) return;
+
+    const timer = window.setInterval(() => {
+      setRetryRemainingSeconds((seconds) => Math.max(seconds - 1, 0));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [showRetryBlockedModal, retryRemainingSeconds]);
+
+  useEffect(() => {
+    if (!showRetryBlockedModal || retryRemainingSeconds > 0) return;
+    setQuestionIndex(0);
+    setWrongCount(0);
+    setSelectedAnswer("");
+    setShowRetryBlockedModal(false);
+    setRetryRemainingSeconds(0);
+    setImmigrationError("");
+  }, [showRetryBlockedModal, retryRemainingSeconds]);
+
   function retryImmigration() {
     setQuestionIndex(0);
     setWrongCount(0);
     setSelectedAnswer("");
-    setShowFailureModal(false);
+    setShowRetryBlockedModal(false);
+    setRetryRemainingSeconds(0);
     setImmigrationError("");
   }
 
@@ -53,19 +105,19 @@ export default function ImmigrationPage({ params }: { params: { country: string 
     try {
       setIsCompleting(true);
       setImmigrationError("");
-      const countryId = await getCountryIdByName(country.name, true);
+      const resolvedCountryId = countryId ?? (await getCountryIdByName(country.name, true));
 
-      if (!countryId) {
+      if (!resolvedCountryId) {
         setImmigrationError("국가 정보를 찾지 못했습니다. 잠시 후 다시 시도해 주세요.");
         setIsCompleting(false);
         return;
       }
 
       const userCountries = await getUserCountries();
-      let userCountryId = userCountries.find((userCountry) => userCountry.country_id === countryId || userCountry.name === country.name)?.id;
+      let userCountryId = userCountries.find((userCountry) => userCountry.country_id === resolvedCountryId || userCountry.name === country.name)?.id;
 
       if (!userCountryId) {
-        const addedCountry = await addUserCountry(countryId);
+        const addedCountry = await addUserCountry(resolvedCountryId);
         userCountryId = addedCountry.id;
       }
 
@@ -82,8 +134,33 @@ export default function ImmigrationPage({ params }: { params: { country: string 
     }
   }
 
+  async function blockRetryAfterFailure() {
+    if (!country) return;
+
+    try {
+      setIsCompleting(true);
+      setImmigrationError("");
+      const resolvedCountryId = countryId ?? (await getCountryIdByName(country.name, true));
+
+      if (!resolvedCountryId) {
+        setImmigrationError("국가 정보를 찾지 못했습니다. 잠시 후 다시 시도해 주세요.");
+        setIsCompleting(false);
+        return;
+      }
+
+      const status = await submitImmigration(resolvedCountryId, 0);
+      setRetryRemainingSeconds(status.retry_remaining_seconds || 10 * 60);
+      setShowRetryBlockedModal(true);
+    } catch (error) {
+      console.error("Failed to block immigration retry.", { countryName, error });
+      setImmigrationError("입국심사 실패 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsCompleting(false);
+    }
+  }
+
   async function handleNextQuestion() {
-    if (!currentQuestion || !selectedAnswer || showFailureModal || isCompleting) return;
+    if (!currentQuestion || !selectedAnswer || showRetryBlockedModal || isCompleting) return;
 
     if (selectedAnswer !== currentQuestion.answer) {
       const nextWrongCount = wrongCount + 1;
@@ -91,7 +168,7 @@ export default function ImmigrationPage({ params }: { params: { country: string 
       setSelectedAnswer("");
 
       if (nextWrongCount >= maxWrongCount) {
-        setShowFailureModal(true);
+        await blockRetryAfterFailure();
       }
 
       return;
@@ -191,35 +268,38 @@ export default function ImmigrationPage({ params }: { params: { country: string 
             </div>
           </section>
 
-          {showFailureModal && <ImmigrationFailureModal onRetry={retryImmigration} onBack={() => router.push("/worldmap")} />}
+          {showRetryBlockedModal && <ImmigrationRetryBlockedModal remainingSeconds={retryRemainingSeconds} onBack={() => router.push("/worldmap")} />}
         </section>
       </section>
     </main>
   );
 }
 
-function ImmigrationFailureModal({ onRetry, onBack }: { onRetry: () => void; onBack: () => void }) {
+function ImmigrationRetryBlockedModal({ remainingSeconds, onBack }: { remainingSeconds: number; onBack: () => void }) {
   return (
     <div className="absolute inset-0 z-30 flex items-center justify-center bg-passport-navy/30 px-6">
       <section className="w-full max-w-sm rounded-lg border border-passport-gold/50 bg-passport-paper p-6 text-center shadow-2xl">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">Immigration Failed</p>
         <h2 className="mt-3 text-2xl font-black text-passport-navy">입국 심사 실패</h2>
         <p className="mt-3 text-sm font-bold leading-6 text-passport-ink/70">
-          입국 심사에 실패했습니다.
+          입국심사를 다시 진행할 수 없습니다.
           <br />
-          다시 도전해주세요.
+          남은 시간 {formatRemainingTime(remainingSeconds)}
         </p>
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <button type="button" onClick={onRetry} className="h-11 rounded-md bg-passport-navy font-black text-white shadow transition hover:bg-passport-blue">
-            재도전
-          </button>
-          <button type="button" onClick={onBack} className="h-11 rounded-md border border-passport-blue/20 font-black text-passport-blue transition hover:bg-passport-blue/10">
+        <div className="mt-6">
+          <button type="button" onClick={onBack} className="h-11 w-full rounded-md border border-passport-blue/20 font-black text-passport-blue transition hover:bg-passport-blue/10">
             뒤로가기
           </button>
         </div>
       </section>
     </div>
   );
+}
+
+function formatRemainingTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const nextSeconds = seconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(nextSeconds).padStart(2, "0")}`;
 }
 
 function buildImmigrationQuestions(country: RepresentativeCountry): ImmigrationQuestion[] {

@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS user_countries (
   immigration_passed_at TEXT,
   immigration_score INTEGER,
   immigration_completed_at TEXT,
+  immigration_retry_available_at TEXT,
   CONSTRAINT uk_user_countries_user_country UNIQUE (user_id, country_id)
 );
 
@@ -68,6 +69,9 @@ ADD COLUMN IF NOT EXISTS immigration_score INTEGER;
 
 ALTER TABLE user_countries
 ADD COLUMN IF NOT EXISTS immigration_completed_at TEXT;
+
+ALTER TABLE user_countries
+ADD COLUMN IF NOT EXISTS immigration_retry_available_at TEXT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_user_countries_user_country
 ON user_countries (user_id, country_id);

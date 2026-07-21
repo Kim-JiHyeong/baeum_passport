@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { BookOpen, ChevronLeft, Globe2, ImageIcon, MapPinned, Plane, Save, Stamp, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -86,7 +86,7 @@ export default function TravelInfoPage({ params }: { params: { country: string }
 
   return (
     <main className="passport-entry paper-surface flex h-screen items-center justify-center overflow-hidden p-4 sm:p-6">
-      <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label={`${countryName} 여행정보`}>
+      <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label={`${countryName} 조사한 국가`}>
         <PassportBookmarks />
         <LogoutBookmark />
 
@@ -190,7 +190,7 @@ function DeleteConfirmModal({ countryName, onCancel, onConfirm }: { countryName:
         <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">Delete Travel Info</p>
         <h2 className="mt-3 text-2xl font-black text-passport-navy">정말 삭제할까요?</h2>
         <p className="mt-3 text-sm font-bold leading-6 text-passport-ink/70">
-          {countryName} 여행정보가 완전히 삭제됩니다. 삭제한 내용은 되돌릴 수 없습니다.
+          {countryName} 조사한 국가가 완전히 삭제됩니다. 삭제한 내용은 되돌릴 수 없습니다.
         </p>
         <div className="mt-6 grid grid-cols-2 gap-3">
           <button type="button" onClick={onCancel} className="h-11 rounded-md border border-passport-blue/20 font-black text-passport-blue transition hover:bg-passport-blue/10">
@@ -209,7 +209,7 @@ function TravelHeader({ countryName, title }: { countryName: string; title: stri
   return (
     <header>
       <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">Travel Info</p>
-      <h1 className="mt-2 text-3xl font-black text-passport-navy">{countryName} 여행정보</h1>
+      <h1 className="mt-2 text-3xl font-black text-passport-navy">{countryName} 조사한 국가</h1>
       <p className="mt-2 text-base font-black text-passport-blue">{title}</p>
       <p className="mt-3 text-sm font-bold leading-7 text-passport-ink/72">이 나라를 여행한다고 상상하며 필요한 정보를 준비하세요.</p>
     </header>
@@ -336,8 +336,8 @@ function PassportBookmarks() {
   const items = [
     { label: "세계지도", href: "/worldmap", active: false, icon: Globe2 },
     { label: "사증", href: "/stamp", active: false, icon: Stamp },
-    { label: "학습지", href: "/workbook", active: false, icon: BookOpen },
-    { label: "여행정보", href: "/travel-info", active: true, icon: MapPinned },
+    { label: "여행한 국가", href: "/workbook", active: false, icon: BookOpen },
+    { label: "조사한 국가", href: "/travel-info", active: true, icon: MapPinned },
     { label: "여권 보기", href: "/mypage/passport", active: false, icon: BookOpen },
   ];
 

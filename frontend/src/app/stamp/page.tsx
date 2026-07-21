@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowLeft, ArrowRight, BookOpen, Globe2, MapPinned, Stamp } from "lucide-react";
 import Link from "next/link";
@@ -84,7 +84,7 @@ export default function StampPage() {
           <div key={`stamp-left-${currentSpread}`} className="passport-open-content workbook-page-turn">
             <StampPageSide
               title={currentSpread === 0 ? "세계 여행 기록" : undefined}
-              subtitle={currentSpread === 0 ? "학습을 완료한 국가의 스탬프가 여권에 기록됩니다." : undefined}
+              subtitle={currentSpread === 0 ? "여행한 국가를 완료하면 스탬프가 여권에 기록됩니다." : undefined}
               stamps={leftStamps}
               spreadIndex={currentSpread}
               pageOffset={0}
@@ -240,8 +240,8 @@ function PassportBookmarks() {
   const items = [
     { label: "세계지도", href: "/worldmap", active: false, icon: Globe2 },
     { label: "사증", href: "/stamp", active: true, icon: Stamp },
-    { label: "학습지", href: "/workbook", active: false, icon: BookOpen },
-    { label: "여행정보", href: "/travel-info", active: false, icon: MapPinned },
+    { label: "여행한 국가", href: "/workbook", active: false, icon: BookOpen },
+    { label: "조사한 국가", href: "/travel-info", active: false, icon: MapPinned },
     { label: "여권 보기", href: "/mypage/passport", active: false, icon: BookOpen },
   ];
 

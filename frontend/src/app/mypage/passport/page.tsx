@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { BookOpen, Globe2, MapPinned, Stamp } from "lucide-react";
 import Image from "next/image";
@@ -42,7 +42,7 @@ export default function MyPassportPage() {
       .catch((error) => {
         if (!isMounted) return;
         if (error instanceof ApiError && error.status === 401) {
-          router.push("/login");
+          router.push("/");
           return;
         }
         console.error("Failed to load passport.", error);
@@ -130,14 +130,14 @@ export default function MyPassportPage() {
                 <header>
                   <p className="text-xs font-black uppercase tracking-[0.24em] text-passport-stamp">Learning Journey</p>
                   <h2 className="mt-3 text-3xl font-black text-passport-navy">배움여권 소유자</h2>
-                  <p className="mt-3 text-base font-bold leading-7 text-passport-ink/72">{user.name}님의 세계 여행 학습 기록입니다.</p>
+                  <p className="mt-3 text-base font-bold leading-7 text-passport-ink/72">{user.name}님의 세계 여행 기록입니다.</p>
                 </header>
 
                 <div className="grid min-h-0 grid-cols-2 gap-4">
                   <StatTile label="방문 국가 수" value={`${stats.visitedCountries}개`} />
                   <StatTile label="획득 스탬프 수" value={`${stats.stamps}개`} />
                   <StatTile label="입국심사 통과 국가 수" value={`${stats.immigrationPassed}개`} />
-                  <StatTile label="학습 완료 국가 수" value={`${stats.completedWorkbooks}개`} />
+                  <StatTile label="여행한 국가 완료 수" value={`${stats.completedWorkbooks}개`} />
                 </div>
 
                 <div className="grid gap-3 rounded-lg border border-passport-blue/15 bg-white/62 p-5">
@@ -158,8 +158,8 @@ function PassportBookmarks() {
   const items = [
     { label: "세계지도", href: "/worldmap", active: false, icon: Globe2 },
     { label: "사증", href: "/stamp", active: false, icon: Stamp },
-    { label: "학습지", href: "/workbook", active: false, icon: BookOpen },
-    { label: "여행정보", href: "/travel-info", active: false, icon: MapPinned },
+    { label: "여행한 국가", href: "/workbook", active: false, icon: BookOpen },
+    { label: "조사한 국가", href: "/travel-info", active: false, icon: MapPinned },
     { label: "여권 보기", href: "/mypage/passport", active: true, icon: BookOpen },
   ];
 

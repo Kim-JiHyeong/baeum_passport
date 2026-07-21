@@ -1,5 +1,6 @@
 package com.baeum.service;
 
+import java.time.Duration;
 import java.time.Instant;
 
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import com.baeum.util.AuthUtil;
 public class ImmigrationService {
 
     private static final int PASSING_SCORE = 2;
+    private static final Duration RETRY_BLOCK_DURATION = Duration.ofMinutes(10);
 
     private final UserCountryRepository userCountryRepository;
     private final CountryRepository countryRepository;
@@ -48,6 +50,9 @@ public class ImmigrationService {
                         false,
                         null,
                         null,
+                        null,
+                        false,
+                        0,
                         false,
                         "입국심사를 진행할 수 있습니다."));
     }
@@ -62,6 +67,10 @@ public class ImmigrationService {
             return toStatusDto(userCountry, "이미 입국심사를 통과한 국가입니다.", true);
         }
 
+        if (isRetryBlocked(userCountry)) {
+            return toStatusDto(userCountry, "입국심사를 다시 진행할 수 없습니다.", false);
+        }
+
         userCountry.setImmigrationScore(score);
 
         if (score >= PASSING_SCORE) {
@@ -69,8 +78,9 @@ public class ImmigrationService {
             return toStatusDto(userCountryRepository.save(userCountry), "입국심사를 통과했습니다.", false);
         }
 
+        userCountry.setImmigrationRetryAvailableAt(Instant.now().plus(RETRY_BLOCK_DURATION).toString());
         userCountryRepository.save(userCountry);
-        return toStatusDto(userCountry, "입국심사에 실패했습니다. 다시 도전해주세요.", false);
+        return toStatusDto(userCountry, "입국심사를 다시 진행할 수 없습니다.", false);
     }
 
     @Transactional
@@ -83,10 +93,15 @@ public class ImmigrationService {
             return toStatusDto(userCountry, "이미 입국심사를 통과한 국가입니다.", true);
         }
 
+        if (isRetryBlocked(userCountry)) {
+            return toStatusDto(userCountry, "입국심사를 다시 진행할 수 없습니다.", false);
+        }
+
         userCountry.setImmigrationScore(null);
         userCountry.setImmigrationPassed(0);
         userCountry.setImmigrationPassedAt(null);
         userCountry.setImmigrationCompletedAt(null);
+        userCountry.setImmigrationRetryAvailableAt(null);
 
         return toStatusDto(userCountryRepository.save(userCountry), "입국심사를 다시 시작합니다.", false);
     }
@@ -116,20 +131,43 @@ public class ImmigrationService {
         userCountry.setImmigrationScore(score);
         userCountry.setImmigrationPassedAt(completedAt);
         userCountry.setImmigrationCompletedAt(completedAt);
+        userCountry.setImmigrationRetryAvailableAt(null);
     }
 
     private ImmigrationStatusDto toStatusDto(UserCountry userCountry, String message, boolean alreadyPassed) {
+        long retryRemainingSeconds = retryRemainingSeconds(userCountry);
         return new ImmigrationStatusDto(
                 userCountry.getCountryId(),
                 userCountry.getId(),
                 isImmigrationPassed(userCountry),
                 userCountry.getImmigrationScore(),
                 userCountry.getImmigrationCompletedAt(),
+                userCountry.getImmigrationRetryAvailableAt(),
+                retryRemainingSeconds > 0,
+                retryRemainingSeconds,
                 alreadyPassed,
                 message);
     }
 
     private boolean isImmigrationPassed(UserCountry userCountry) {
         return Integer.valueOf(1).equals(userCountry.getImmigrationPassed());
+    }
+
+    private boolean isRetryBlocked(UserCountry userCountry) {
+        return retryRemainingSeconds(userCountry) > 0;
+    }
+
+    private long retryRemainingSeconds(UserCountry userCountry) {
+        String retryAvailableAt = userCountry.getImmigrationRetryAvailableAt();
+        if (retryAvailableAt == null || retryAvailableAt.isBlank()) {
+            return 0;
+        }
+
+        try {
+            long seconds = Duration.between(Instant.now(), Instant.parse(retryAvailableAt)).getSeconds();
+            return Math.max(seconds, 0);
+        } catch (Exception exception) {
+            return 0;
+        }
     }
 }

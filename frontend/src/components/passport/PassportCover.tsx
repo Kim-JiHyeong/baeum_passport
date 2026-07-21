@@ -1,4 +1,5 @@
-import { LogIn, Plane, UserPlus } from "lucide-react";
+import { Plane } from "lucide-react";
+import type { KeyboardEvent } from "react";
 import type { PassportMode } from "@/app/page";
 
 type PassportCoverProps = {
@@ -7,8 +8,26 @@ type PassportCoverProps = {
 };
 
 export function PassportCover({ onSelect, isTransitioning = false }: PassportCoverProps) {
+  function openPassport() {
+    if (!isTransitioning) onSelect("login");
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openPassport();
+    }
+  }
+
   return (
-    <section className={`passport-cover-closed ${isTransitioning ? "is-soft-transitioning" : ""}`} aria-label="닫힌 배움여권">
+    <section
+      role="button"
+      tabIndex={0}
+      onClick={openPassport}
+      onKeyDown={handleKeyDown}
+      className={`passport-cover-closed cursor-pointer outline-none transition focus-visible:ring-4 focus-visible:ring-passport-gold/45 ${isTransitioning ? "is-soft-transitioning" : ""}`}
+      aria-label="닫힌 배움여권 열기"
+    >
       <div className="passport-cover-border" />
       <div className="passport-cover-shine" />
 
@@ -28,28 +47,9 @@ export function PassportCover({ onSelect, isTransitioning = false }: PassportCov
           <div className="mt-8 h-px w-44 bg-passport-gold/55" />
         </div>
 
-        <div className="passport-cover-actions mb-8 w-full">
-          <div className="grid justify-items-center gap-5">
-            <button
-              type="button"
-              onClick={() => onSelect("login")}
-              disabled={isTransitioning}
-              className="inline-flex h-12 w-3/5 items-center justify-center gap-2 rounded-md bg-passport-gold font-black text-passport-navy shadow transition hover:bg-white"
-            >
-              <LogIn size={18} />
-              로그인
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelect("signup")}
-              disabled={isTransitioning}
-              className="mt-2 inline-flex h-12 w-3/5 items-center justify-center gap-2 rounded-md border border-passport-gold/70 bg-white/8 font-black text-passport-gold transition hover:bg-white/12"
-            >
-              <UserPlus size={18} />
-              회원가입
-            </button>
-          </div>
-        </div>
+        <p className="mb-8 text-sm font-black uppercase tracking-[0.24em] text-passport-gold/75">
+          World Explorer
+        </p>
       </div>
     </section>
   );

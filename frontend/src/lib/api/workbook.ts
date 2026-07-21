@@ -74,6 +74,11 @@ export async function getWorkbook(countryId: number) {
   return { record: toRecord(data), completed: data.completed === 1 };
 }
 
+export async function getCompletedWorkbookCountryIds() {
+  const { data } = await apiClient.get<number[]>("/api/workbooks/completed-country-ids");
+  return data;
+}
+
 export async function saveWorkbook(countryId: number, record: WorkbookRecord) {
   const { data } = await apiClient.patch<WorkbookResponse>(`/api/workbooks/${countryId}`, toPayload(record));
   return { record: toRecord(data), completed: data.completed === 1 };

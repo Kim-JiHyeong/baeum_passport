@@ -39,6 +39,19 @@ export function SignupForm() {
       <AvatarSelector gender={form.gender} value={form.avatar} onChange={(value) => updateField("avatar", value)} />
 
       <label className="block text-sm font-bold text-passport-ink">
+        성별
+        <select
+          value={form.gender}
+          onChange={(event) => updateField("gender", event.target.value)}
+          className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 bg-passport-paper px-3 outline-none focus:border-passport-blue"
+        >
+          <option>선택 안 함</option>
+          <option>남</option>
+          <option>여</option>
+        </select>
+      </label>
+
+      <label className="block text-sm font-bold text-passport-ink">
         학교 이름
         <input
           value={form.schoolName}
@@ -81,18 +94,6 @@ export function SignupForm() {
             onChange={(event) => updateField("firstName", event.target.value)}
             className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 bg-passport-paper px-3 outline-none focus:border-passport-blue"
           />
-        </label>
-        <label className="block text-sm font-bold text-passport-ink">
-          성별
-          <select
-            value={form.gender}
-            onChange={(event) => updateField("gender", event.target.value)}
-            className="mt-2 h-11 w-full rounded-md border border-passport-blue/20 bg-passport-paper px-3 outline-none focus:border-passport-blue"
-          >
-            <option>선택 안 함</option>
-            <option>남</option>
-            <option>여</option>
-          </select>
         </label>
       </div>
 

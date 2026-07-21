@@ -72,6 +72,42 @@ class ImmigrationServiceTest {
         assertFalse(result.isImmigrationPassed());
         assertEquals(1, result.getImmigrationScore());
         assertNull(result.getImmigrationCompletedAt());
+        assertTrue(result.isRetryBlocked());
+        assertTrue(result.getRetryRemainingSeconds() > 0);
+        assertNotNull(Instant.parse(result.getImmigrationRetryAvailableAt()));
+    }
+
+    @Test
+    void blocksSubmitWhileRetryDelayIsActive() {
+        UserCountry userCountry = userCountry();
+        userCountry.setImmigrationScore(1);
+        userCountry.setImmigrationRetryAvailableAt(Instant.now().plusSeconds(300).toString());
+        when(countryRepository.findById(2L)).thenReturn(Optional.of(new Country()));
+        when(authUtil.getCurrentUserId()).thenReturn(1L);
+        when(userCountryRepository.findByUserIdAndCountryId(1L, 2L)).thenReturn(Optional.of(userCountry));
+
+        ImmigrationStatusDto result = immigrationService.submitImmigration(2L, 2);
+
+        assertFalse(result.isImmigrationPassed());
+        assertTrue(result.isRetryBlocked());
+        assertTrue(result.getRetryRemainingSeconds() > 0);
+        verify(userCountryRepository, never()).save(any(UserCountry.class));
+    }
+
+    @Test
+    void allowsSubmitAfterRetryDelayExpires() {
+        UserCountry userCountry = userCountry();
+        userCountry.setImmigrationRetryAvailableAt(Instant.now().minusSeconds(1).toString());
+        when(countryRepository.findById(2L)).thenReturn(Optional.of(new Country()));
+        when(authUtil.getCurrentUserId()).thenReturn(1L);
+        when(userCountryRepository.findByUserIdAndCountryId(1L, 2L)).thenReturn(Optional.of(userCountry));
+        when(userCountryRepository.save(userCountry)).thenReturn(userCountry);
+
+        ImmigrationStatusDto result = immigrationService.submitImmigration(2L, 2);
+
+        assertTrue(result.isImmigrationPassed());
+        assertFalse(result.isRetryBlocked());
+        assertEquals(0, result.getRetryRemainingSeconds());
     }
 
     @Test
@@ -123,6 +159,7 @@ class ImmigrationServiceTest {
         assertFalse(result.isImmigrationPassed());
         assertNull(result.getImmigrationScore());
         assertNull(result.getImmigrationCompletedAt());
+        assertNull(userCountry.getImmigrationRetryAvailableAt());
     }
 
     private UserCountry userCountry() {

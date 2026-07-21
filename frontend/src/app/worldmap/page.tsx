@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowLeft, BookOpen, Globe2, Info, MapPinned, Stamp } from "lucide-react";
 import Image from "next/image";
@@ -189,8 +189,8 @@ function PassportBookmarks({ country }: { country: RepresentativeCountry }) {
   const items = [
     { label: "세계지도", href: "/worldmap", active: true, icon: Globe2 },
     { label: "사증", href: "/stamp", active: false, icon: Stamp },
-    { label: "학습지", href: "/workbook", active: false, icon: BookOpen },
-    { label: "여행정보", href: "/travel-info", active: false, icon: MapPinned },
+    { label: "여행한 국가", href: "/workbook", active: false, icon: BookOpen },
+    { label: "조사한 국가", href: "/travel-info", active: false, icon: MapPinned },
     { label: "여권 보기", href: "/mypage/passport", active: false, icon: BookOpen },
   ];
 

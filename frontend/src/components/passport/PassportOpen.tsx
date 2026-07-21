@@ -1,4 +1,4 @@
-import { ArrowLeft, Globe2 } from "lucide-react";
+﻿import { ArrowLeft, Globe2 } from "lucide-react";
 import type { PassportMode } from "@/app/page";
 import { LoginForm } from "@/components/passport/LoginForm";
 import { SignupForm } from "@/components/passport/SignupForm";
@@ -29,7 +29,7 @@ export function PassportOpen({ mode, onModeChange }: PassportOpenProps) {
               </p>
               <h2 className="mt-3 text-3xl font-black text-passport-navy">세계 여행 준비</h2>
               <p className="mt-4 max-w-sm leading-7 text-passport-ink/72">
-                여권을 펼치고 입국심사, 학습지, 사증 도장을 차례로 모아 보세요.
+                여권을 펼치고 입국심사, 여행한 국가, 사증 도장을 차례로 모아 보세요.
               </p>
             </div>
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowLeft, ArrowRight, BookOpen, BookOpenCheck, ChevronLeft, Globe2, ImageIcon, MapPinned, Stamp } from "lucide-react";
 import Link from "next/link";
@@ -92,7 +92,7 @@ export default function WorkbookPage({ params }: { params: { country: string } }
       if (isMounted) {
         recordRef.current = emptyRecord;
         setRecord(emptyRecord);
-        setCompletionError("학습지 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+        setCompletionError("여행한 국가 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.");
       }
     });
 
@@ -112,7 +112,7 @@ export default function WorkbookPage({ params }: { params: { country: string } }
 
     if (!resolvedCountryId) {
       console.error("Cannot save workbook because countryId was not resolved.", { countryName });
-      setCompletionError("국가 정보를 찾지 못해 학습지를 저장할 수 없습니다. 새로고침 후 다시 시도해 주세요.");
+      setCompletionError("국가 정보를 찾지 못해 여행한 국가를 저장할 수 없습니다. 새로고침 후 다시 시도해 주세요.");
       return null;
     }
 
@@ -142,7 +142,7 @@ export default function WorkbookPage({ params }: { params: { country: string } }
       setCurrentSpread((spread) => Math.max(0, spread - 1));
     } catch (error) {
       console.error("Failed to save workbook before moving to previous spread.", { countryName, countryId, error });
-      setCompletionError("학습지 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setCompletionError("여행한 국가 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     }
   }
 
@@ -153,7 +153,7 @@ export default function WorkbookPage({ params }: { params: { country: string } }
       setCurrentSpread((spread) => Math.min(2, spread + 1));
     } catch (error) {
       console.error("Failed to save workbook before moving to next spread.", { countryName, countryId, error });
-      setCompletionError("학습지 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setCompletionError("여행한 국가 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     }
   }
 
@@ -168,7 +168,7 @@ export default function WorkbookPage({ params }: { params: { country: string } }
       router.push(href);
     } catch (error) {
       console.error("Failed to save workbook before navigation.", { countryName, countryId, href, error });
-      setCompletionError("학습지 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setCompletionError("여행한 국가 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     }
   }
 
@@ -196,18 +196,18 @@ export default function WorkbookPage({ params }: { params: { country: string } }
       router.push("/stamp");
     } catch (error) {
       console.error("Failed to complete workbook.", { countryName, countryId, error });
-      setCompletionError("학습지 완료 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setCompletionError("여행한 국가 완료 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     }
   }
 
   if (!country || !isEligibleCountry) {
     return (
       <main className="passport-entry paper-surface flex h-screen items-center justify-center overflow-hidden p-4 sm:p-6">
-        <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label="학습지 오류">
+        <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label="여행한 국가 오류">
           <div className="passport-page passport-page-left">
             <div className="passport-open-content justify-center">
               <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">Workbook</p>
-              <h1 className="mt-3 text-3xl font-black text-passport-navy">학습지를 찾을 수 없습니다</h1>
+              <h1 className="mt-3 text-3xl font-black text-passport-navy">여행한 국가를 찾을 수 없습니다</h1>
               <p className="mt-4 leading-7 text-passport-ink/72">국가 선택 화면으로 돌아가 다시 선택해 주세요.</p>
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function WorkbookPage({ params }: { params: { country: string } }
 
   return (
     <main className="passport-entry paper-surface flex h-screen items-center justify-center overflow-hidden p-4 sm:p-6">
-      <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label={`${country.name} 학습지`}>
+      <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label={`${country.name} 여행한 국가`}>
         <PassportBookmarks country={bookmarkCountry} onNavigate={handleWorkbookNavigation} />
         <LogoutBookmark />
 
@@ -319,7 +319,7 @@ function AlreadyStampedModal({ countryName, onClose }: { countryName: string; on
         <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">Stamp Collected</p>
         <h2 className="mt-3 text-2xl font-black text-passport-navy">이미 스탬프를 받았어요</h2>
         <p className="mt-3 text-sm font-bold leading-6 text-passport-ink/70">
-          {countryName} 학습지는 이미 완료되어 사증 페이지에 스탬프가 기록되어 있습니다.
+          {countryName} 여행한 국가는 이미 완료되어 사증 페이지에 스탬프가 기록되어 있습니다.
         </p>
         <button type="button" onClick={onClose} className="mt-6 h-11 rounded-md bg-passport-navy px-6 font-black text-white shadow transition hover:bg-passport-blue">
           확인
@@ -346,7 +346,7 @@ function WorkbookPageHeader({
   return (
     <header className="mb-3 flex items-start justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-black text-passport-navy">{country ? `${country.name} 학습지` : title}</h1>
+        <h1 className="text-2xl font-black text-passport-navy">{country ? `${country.name} 여행한 국가` : title}</h1>
         {country && <p className="mt-1 text-base font-black text-passport-blue">{title}</p>}
         <p className="mt-3 text-sm font-bold leading-7 text-passport-ink/72">{subtitle}</p>
       </div>
@@ -379,7 +379,7 @@ function BasicInfoPage({
 }) {
   return (
     <>
-      <WorkbookPageHeader pageNumber={1} title="국가 기본 정보" subtitle="나라의 핵심 정보를 조사해 학습지 작성칸에 정리하세요." country={country} showBackLink onNavigate={onNavigate} />
+      <WorkbookPageHeader pageNumber={1} title="국가 기본 정보" subtitle="나라의 핵심 정보를 조사해 여행한 국가 작성칸에 정리하세요." country={country} showBackLink onNavigate={onNavigate} />
       <section className="grid min-h-0 flex-1 grid-cols-2 grid-rows-3 gap-3">
         <LargeField label="수도" value={record.capital} onChange={(value) => onChange("capital", value)} placeholder="조사해서 적어 보세요" />
         <LargeField label="사용 언어" value={record.language} onChange={(value) => onChange("language", value)} placeholder="예: 영어, 일본어" />
@@ -750,8 +750,8 @@ function PassportBookmarks({
   const items = [
     { label: "세계지도", href: "/worldmap", active: false, icon: Globe2 },
     { label: "사증", href: "/stamp", active: false, icon: Stamp },
-    { label: "학습지", href: "/workbook", active: true, icon: BookOpen },
-    { label: "여행정보", href: "/travel-info", active: false, icon: MapPinned },
+    { label: "여행한 국가", href: "/workbook", active: true, icon: BookOpen },
+    { label: "조사한 국가", href: "/travel-info", active: false, icon: MapPinned },
     { label: "여권 보기", href: "/mypage/passport", active: false, icon: BookOpen },
   ];
 
