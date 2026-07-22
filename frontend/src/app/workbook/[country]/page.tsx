@@ -1,10 +1,11 @@
 ﻿"use client";
 
-import { ArrowLeft, ArrowRight, BookOpen, BookOpenCheck, ChevronLeft, Globe2, ImageIcon, MapPinned, Stamp } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, BookOpenCheck, ChevronLeft, Compass, Globe2, ImageIcon, MapPinned, Stamp } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import { LogoutBookmark } from "@/components/passport/LogoutBookmark";
+import { ApiError } from "@/lib/api/apiClient";
 import { countryPath, findCountry, isWorkbookEligibleCountry, representativeCountries, workbookCountries, type RepresentativeCountry } from "@/lib/countries";
 import { getCountryIdByName } from "@/lib/api/country";
 import { uploadFlagImage, uploadMapImage } from "@/lib/api/upload";
@@ -64,6 +65,7 @@ export default function WorkbookPage({ params }: { params: { country: string } }
   const [isCompleted, setIsCompleted] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [completionError, setCompletionError] = useState("");
+  const [isImmigrationRequired, setIsImmigrationRequired] = useState(false);
   const [showAlreadyStampedModal, setShowAlreadyStampedModal] = useState(false);
 
   useEffect(() => {
@@ -90,6 +92,10 @@ export default function WorkbookPage({ params }: { params: { country: string } }
     loadWorkbook().catch((error) => {
       console.error("Failed to load workbook.", { countryName, error });
       if (isMounted) {
+        if (error instanceof ApiError && error.status === 403) {
+          setIsImmigrationRequired(true);
+          return;
+        }
         recordRef.current = emptyRecord;
         setRecord(emptyRecord);
         setCompletionError("여행한 국가 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.");
@@ -219,6 +225,46 @@ export default function WorkbookPage({ params }: { params: { country: string } }
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-passport-navy px-5 font-black text-white shadow transition hover:bg-passport-blue"
               >
                 <ArrowLeft size={18} />
+                국가 선택으로 돌아가기
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (isImmigrationRequired) {
+    return (
+      <main className="passport-entry paper-surface flex h-screen items-center justify-center overflow-hidden p-4 sm:p-6">
+        <section className="passport-book-open passport-soft-enter passport-explorer-book workbook-book" aria-label={`${country.name} 입국심사 필요`}>
+          <PassportBookmarks country={bookmarkCountry} onNavigate={(event, href) => handleWorkbookNavigation(event, href, false)} />
+          <LogoutBookmark />
+
+          <div className="passport-page passport-page-left">
+            <div className="passport-open-content justify-center">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-passport-stamp">Immigration Required</p>
+              <h1 className="mt-3 text-3xl font-black text-passport-navy">입국심사를 먼저 완료해 주세요</h1>
+              <p className="mt-4 leading-7 text-passport-ink/72">
+                {country.name} 학습지는 입국심사를 통과한 뒤 작성할 수 있습니다.
+              </p>
+            </div>
+          </div>
+
+          <div className="passport-page passport-page-right">
+            <div className="passport-open-content justify-center gap-4">
+              <Link
+                href={`/immi/${countryPath(country.name)}`}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-passport-navy px-5 font-black text-white shadow transition hover:bg-passport-blue"
+              >
+                <Compass size={18} />
+                입국심사 하러 가기
+              </Link>
+              <Link
+                href="/workbook"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-passport-blue/20 px-4 font-bold text-passport-blue transition hover:bg-passport-blue/10"
+              >
+                <ArrowLeft size={17} />
                 국가 선택으로 돌아가기
               </Link>
             </div>

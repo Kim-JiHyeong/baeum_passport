@@ -11,12 +11,14 @@ import com.baeum.dto.WorkbookDto;
 import com.baeum.dto.WorkbookUpdateRequest;
 import com.baeum.entity.Country;
 import com.baeum.entity.Stamp;
+import com.baeum.entity.UserCountry;
 import com.baeum.entity.Workbook;
 import com.baeum.exception.DuplicateResourceException;
 import com.baeum.exception.ForbiddenException;
 import com.baeum.exception.ResourceNotFoundException;
 import com.baeum.repository.CountryRepository;
 import com.baeum.repository.StampRepository;
+import com.baeum.repository.UserCountryRepository;
 import com.baeum.repository.WorkbookRepository;
 import com.baeum.util.AuthUtil;
 
@@ -27,22 +29,26 @@ public class WorkbookService {
     private final WorkbookRepository workbookRepository;
     private final CountryRepository countryRepository;
     private final StampRepository stampRepository;
+    private final UserCountryRepository userCountryRepository;
     private final AuthUtil authUtil;
 
     public WorkbookService(
             WorkbookRepository workbookRepository,
             CountryRepository countryRepository,
             StampRepository stampRepository,
+            UserCountryRepository userCountryRepository,
             AuthUtil authUtil) {
         this.workbookRepository = workbookRepository;
         this.countryRepository = countryRepository;
         this.stampRepository = stampRepository;
+        this.userCountryRepository = userCountryRepository;
         this.authUtil = authUtil;
     }
 
     @Transactional
     public WorkbookDto getWorkbook(Long countryId) {
         Long userId = authUtil.getCurrentUserId();
+        verifyImmigrationPassed(userId, countryId);
         Workbook workbook = workbookRepository.findByUserIdAndCountryId(userId, countryId)
                 .orElseGet(() -> createEmptyWorkbook(userId, countryId));
         return toDto(workbook);
@@ -60,6 +66,7 @@ public class WorkbookService {
         Long userId = authUtil.getCurrentUserId();
         Country country = countryRepository.findById(countryId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 국가를 찾을 수 없습니다."));
+        verifyImmigrationPassed(userId, countryId);
 
         if (!Integer.valueOf(1).equals(country.getIsFeatured())) {
             throw new ForbiddenException("대표 국가만 여행한 국가를 작성할 수 있습니다.");
@@ -80,6 +87,7 @@ public class WorkbookService {
     @Transactional
     public WorkbookDto updateWorkbook(Long countryId, WorkbookUpdateRequest request) {
         Long userId = authUtil.getCurrentUserId();
+        verifyImmigrationPassed(userId, countryId);
         Workbook workbook = findByUserIdAndCountryId(userId, countryId);
 
         applyUpdate(workbook, request);
@@ -90,6 +98,7 @@ public class WorkbookService {
     @Transactional
     public WorkbookCompleteResponse completeWorkbook(Long countryId) {
         Long userId = authUtil.getCurrentUserId();
+        verifyImmigrationPassed(userId, countryId);
         Workbook workbook = findByUserIdAndCountryId(userId, countryId);
 
         workbook.setCompleted(1);
@@ -177,6 +186,21 @@ public class WorkbookService {
     private Workbook findByUserIdAndCountryId(Long userId, Long countryId) {
         return workbookRepository.findByUserIdAndCountryId(userId, countryId)
                 .orElseThrow(() -> new ResourceNotFoundException("여행한 국가를 찾을 수 없습니다."));
+    }
+
+    private void verifyImmigrationPassed(Long userId, Long countryId) {
+        UserCountry userCountry = userCountryRepository.findByUserIdAndCountryId(userId, countryId)
+                .orElseThrow(() -> new ForbiddenException("입국심사를 완료해야 학습지를 작성할 수 있습니다."));
+
+        if (!isImmigrationPassed(userCountry)) {
+            throw new ForbiddenException("입국심사를 완료해야 학습지를 작성할 수 있습니다.");
+        }
+    }
+
+    private boolean isImmigrationPassed(UserCountry userCountry) {
+        return Integer.valueOf(1).equals(userCountry.getImmigrationPassed())
+                || userCountry.getImmigrationPassedAt() != null
+                || userCountry.getImmigrationCompletedAt() != null;
     }
 
     private WorkbookDto toDto(Workbook workbook) {

@@ -1,9 +1,11 @@
 package com.baeum.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,9 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.baeum.exception.ForbiddenException;
 import com.baeum.entity.Workbook;
 import com.baeum.repository.CountryRepository;
 import com.baeum.repository.StampRepository;
+import com.baeum.repository.UserCountryRepository;
 import com.baeum.repository.WorkbookRepository;
 import com.baeum.util.AuthUtil;
 
@@ -30,13 +34,16 @@ class WorkbookServiceTest {
     private StampRepository stampRepository;
 
     @Mock
+    private UserCountryRepository userCountryRepository;
+
+    @Mock
     private AuthUtil authUtil;
 
     private WorkbookService workbookService;
 
     @BeforeEach
     void setUp() {
-        workbookService = new WorkbookService(workbookRepository, countryRepository, stampRepository, authUtil);
+        workbookService = new WorkbookService(workbookRepository, countryRepository, stampRepository, userCountryRepository, authUtil);
     }
 
     @Test
@@ -50,6 +57,14 @@ class WorkbookServiceTest {
         List<Long> result = workbookService.getCompletedCountryIds();
 
         assertEquals(List.of(2L, 5L), result);
+    }
+
+    @Test
+    void getWorkbookRequiresPassedImmigration() {
+        when(authUtil.getCurrentUserId()).thenReturn(10L);
+        when(userCountryRepository.findByUserIdAndCountryId(10L, 2L)).thenReturn(Optional.empty());
+
+        assertThrows(ForbiddenException.class, () -> workbookService.getWorkbook(2L));
     }
 
     private Workbook workbook(Long countryId) {
